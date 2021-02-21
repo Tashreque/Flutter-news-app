@@ -8,7 +8,7 @@ class NavigationBarBottom extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       child: Container(
-        color: Colors.red,
+        color: Colors.white,
         child: Column(
           children: [
             Row(
@@ -19,7 +19,7 @@ class NavigationBarBottom extends StatelessWidget {
                     "${this.title}",
                     style: TextStyle(
                       fontSize: 32,
-                      color: Colors.white,
+                      color: Colors.black,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
