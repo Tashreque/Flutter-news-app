@@ -27,6 +27,7 @@ dependencies:
   http: ^0.12.2
   built_value: ^7.1.0
   json_serializable: ^3.5.1
+  intl: ^0.16.1
 
 
   # The following adds the Cupertino Icons font to your application.
