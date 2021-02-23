@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:my_news/model/article.dart';
 import 'package:my_news/networking/network_manager.dart';
 import 'package:my_news/widgets/category_based_item.dart';
 import 'package:my_news/widgets/list_separators.dart';
 import 'package:my_news/widgets/navigation_bar_bottom.dart';
 import 'package:my_news/widgets/top_headline_list.dart';
+import 'package:my_news/helper/string_extension.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({Key key}) : super(key: key);
@@ -35,9 +35,21 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void initState() {
     super.initState();
+
+    // Add tabs to the tab list.
     for (int i = 0; i < _tabTextList.length; i++) {
-      _tabs.add(Tab(text: _tabTextList[i]));
+      _tabs.add(Tab(
+        child: Text(
+          _tabTextList[i],
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ));
     }
+
+    // Obtain articles and articlesByCategory by making network request.
     articles = NetworkManager.instance.getTopHeadlines("us");
     articlesByCategory = NetworkManager.instance
         .getTopHeadlines("us", category: _tabTextList[0]);
@@ -45,7 +57,14 @@ class _HomeScreenState extends State<HomeScreen>
     // Setup tab controller.
     _tabController = TabController(length: _tabs.length, vsync: this);
     _tabController.addListener(() {
-      print("Tab index = " + _tabController.index.toString());
+      // Change state when switched to a new tab.
+      if (_tabController.indexIsChanging) {
+        setState(() {
+          // Make network request to get relevant news by category.
+          articlesByCategory = NetworkManager.instance.getTopHeadlines("us",
+              category: _tabTextList[_tabController.index]);
+        });
+      }
     });
   }
 
@@ -102,19 +121,24 @@ class _HomeScreenState extends State<HomeScreen>
                       );
                     } else {
                       final dataToDisplay = dataByCategory[index - 2];
-                      final localDateTime =
-                          DateTime.parse(dataToDisplay.publishedAt).toLocal();
-                      final date = DateFormat.yMEd().format(localDateTime);
-                      final time = DateFormat.jm().format(localDateTime);
+                      final date =
+                          dataToDisplay.publishedAt.getLocalDateString();
+                      final time =
+                          dataToDisplay.publishedAt.getLocalTimeString();
 
-                      return CategoryBasedItem(
-                        headline: dataToDisplay.title,
-                        subHeadline: dataToDisplay.description,
-                        source: dataToDisplay.source.name,
-                        author: dataToDisplay.author,
-                        date: date,
-                        time: time,
-                        headlineImageUrl: dataToDisplay.urlToImage,
+                      return GestureDetector(
+                        onTap: () {
+                          print("Tapped other!");
+                        },
+                        child: CategoryBasedItem(
+                          headline: dataToDisplay.title,
+                          subHeadline: dataToDisplay.description,
+                          source: dataToDisplay.source.name,
+                          author: dataToDisplay.author,
+                          date: date,
+                          time: time,
+                          headlineImageUrl: dataToDisplay.urlToImage,
+                        ),
                       );
                     }
                   },

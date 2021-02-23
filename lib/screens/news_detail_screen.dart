@@ -1,0 +1,16 @@
+import 'package:flutter/material.dart';
+
+class NewsDetailScreen extends StatelessWidget {
+  const NewsDetailScreen({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Container(
+        child: Center(
+          child: Text("News detail screen"),
+        ),
+      ),
+    );
+  }
+}

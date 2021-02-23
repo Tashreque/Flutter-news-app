@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:my_news/model/article.dart';
 import 'package:my_news/widgets/list_separators.dart';
 import 'package:my_news/widgets/top_headline_item.dart';
+import 'package:my_news/helper/string_extension.dart';
 
 class TopHeadlineList extends StatelessWidget {
   final List<Article> articles;
@@ -10,19 +11,25 @@ class TopHeadlineList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 500,
+      height: 520,
       child: Padding(
         padding: EdgeInsets.fromLTRB(16, 8, 16, 16),
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
           itemBuilder: (context, index) {
             final article = articles[index];
-            return TopHeadlineItem(
-              headline: article.title,
-              subHeadline: article.description,
-              author: article.author,
-              source: article.source.name,
-              headlineImageUrl: article.urlToImage,
+            return GestureDetector(
+              onTap: () {
+                print("Tapped!");
+              },
+              child: TopHeadlineItem(
+                headline: article.title,
+                subHeadline: article.description,
+                author: article.author,
+                source: article.source.name,
+                elapsedTime: article.publishedAt.getTimeDifferenceToNow(),
+                headlineImageUrl: article.urlToImage,
+              ),
             );
           },
           separatorBuilder: (context, index) {

@@ -5,14 +5,18 @@ class TopHeadlineItem extends StatelessWidget {
   final String subHeadline;
   final String source;
   final String author;
+  final String elapsedTime;
   final String headlineImageUrl;
+  final Function onPressed;
   const TopHeadlineItem(
       {Key key,
       this.headline,
       this.subHeadline,
       this.source,
       this.author,
-      this.headlineImageUrl})
+      this.headlineImageUrl,
+      this.elapsedTime,
+      this.onPressed})
       : super(key: key);
 
   @override
@@ -36,10 +40,10 @@ class TopHeadlineItem extends StatelessWidget {
         alignment: Alignment.bottomCenter,
         children: [
           Opacity(
-            opacity: 0.6,
+            opacity: 0.75,
             child: Container(
               color: Colors.black,
-              height: 280,
+              height: 300,
               child: Center(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -89,6 +93,18 @@ class TopHeadlineItem extends StatelessWidget {
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.fade,
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
+                      child: Text(
+                        (this.elapsedTime != null || this.elapsedTime.isEmpty)
+                            ? this.elapsedTime + " ago"
+                            : "",
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                        maxLines: 1,
                       ),
                     )
                   ],
