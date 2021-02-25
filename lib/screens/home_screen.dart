@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_news/model/article.dart';
 import 'package:my_news/networking/network_manager.dart';
+import 'package:my_news/screens/news_detail_screen.dart';
 import 'package:my_news/widgets/category_based_item.dart';
 import 'package:my_news/widgets/list_separators.dart';
 import 'package:my_news/widgets/navigation_bar_bottom.dart';
@@ -8,6 +9,7 @@ import 'package:my_news/widgets/top_headline_list.dart';
 import 'package:my_news/helper/string_extension.dart';
 
 class HomeScreen extends StatefulWidget {
+  static const routeName = '/';
   HomeScreen({Key key}) : super(key: key);
 
   @override
@@ -128,7 +130,9 @@ class _HomeScreenState extends State<HomeScreen>
 
                       return GestureDetector(
                         onTap: () {
-                          print("Tapped other!");
+                          Navigator.pushNamed(
+                              context, NewsDetailScreen.routeName,
+                              arguments: dataToDisplay);
                         },
                         child: CategoryBasedItem(
                           headline: dataToDisplay.title,

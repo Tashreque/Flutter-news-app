@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 class CategoryBasedItem extends StatelessWidget {
@@ -30,16 +31,26 @@ class CategoryBasedItem extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.baseline,
           children: [
             (headlineImageUrl != null)
-                ? Container(
-                    height: 100,
-                    width: 100,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: NetworkImage(headlineImageUrl),
-                        fit: BoxFit.cover,
-                      ),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
+                ? CachedNetworkImage(
+                    imageUrl: headlineImageUrl,
+                    imageBuilder: (context, imageProvider) {
+                      return Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          image: DecorationImage(
+                            image: imageProvider,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      );
+                    },
+                    progressIndicatorBuilder:
+                        (context, url, downloadProgress) =>
+                            CircularProgressIndicator(
+                                value: downloadProgress.progress),
+                    errorWidget: (context, url, error) => Icon(Icons.error),
                   )
                 : Container(
                     height: 100,

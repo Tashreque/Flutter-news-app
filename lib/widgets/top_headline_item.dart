@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 class TopHeadlineItem extends StatelessWidget {
@@ -23,26 +24,50 @@ class TopHeadlineItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 300,
-      clipBehavior: Clip.hardEdge,
-      decoration: (headlineImageUrl != null)
-          ? BoxDecoration(
-              image: DecorationImage(
-                image: NetworkImage(headlineImageUrl),
-                fit: BoxFit.cover,
-              ),
-              borderRadius: BorderRadius.circular(25),
-            )
-          : BoxDecoration(
-              color: Colors.blueAccent,
-              borderRadius: BorderRadius.circular(25),
-            ),
       child: Stack(
         alignment: Alignment.bottomCenter,
         children: [
+          (headlineImageUrl != null)
+              ? CachedNetworkImage(
+                  imageUrl: headlineImageUrl,
+                  progressIndicatorBuilder: (context, url, progress) {
+                    return Center(
+                      child:
+                          CircularProgressIndicator(value: progress.progress),
+                    );
+                  },
+                  errorWidget: (context, url, error) {
+                    return Icon(Icons.error);
+                  },
+                  imageBuilder: (context, imageProvider) {
+                    return Container(
+                      width: 300,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(25),
+                        image: DecorationImage(
+                          image: imageProvider,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    );
+                  },
+                )
+              : Container(
+                  width: 300,
+                  decoration: BoxDecoration(
+                    color: Colors.blueAccent,
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                ),
           Opacity(
             opacity: 0.75,
             child: Container(
-              color: Colors.black,
+              decoration: BoxDecoration(
+                  color: Colors.black,
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(25),
+                    bottomRight: Radius.circular(25),
+                  )),
               height: 300,
               child: Center(
                 child: Column(

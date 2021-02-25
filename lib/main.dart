@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_news/screens/home_screen.dart';
+import 'package:my_news/screens/news_detail_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -11,7 +12,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: HomeScreen(),
+      initialRoute: HomeScreen.routeName,
+      routes: {
+        HomeScreen.routeName: (context) => HomeScreen(),
+        NewsDetailScreen.routeName: (context) => NewsDetailScreen(),
+      },
     );
   }
 }
