@@ -1,9 +1,14 @@
+import 'dart:typed_data';
+import 'dart:ui';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:my_news/model/article.dart';
+import 'package:my_news/helper/string_extension.dart';
+import 'package:my_news/widgets/bordered_box.dart';
 
 const toolbarHeight = 80.0;
-const expandedToolbarHeight = 450.0;
+const expandedToolbarHeight = 500.0;
 
 class NewsDetailScreen extends StatefulWidget {
   static final routeName = 'news_detail';
@@ -53,49 +58,154 @@ class _NewsDetailScreenState extends State<NewsDetailScreen> {
                     style: TextStyle(color: Colors.black),
                   )
                 : null,
-            flexibleSpace: FlexibleSpaceBar(
-              title: _showTitle()
-                  ? null
-                  : Padding(
-                      padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Text(article.title),
-                        ],
-                      ),
+            flexibleSpace: Stack(
+              alignment: Alignment.bottomCenter,
+              children: [
+                FlexibleSpaceBar(
+                  titlePadding: EdgeInsets.all(0),
+                  title: _showTitle()
+                      ? null
+                      : ClipRect(
+                          child: Container(
+                            child: Padding(
+                              padding: EdgeInsets.fromLTRB(16, 8, 16, 33),
+                              child: BackdropFilter(
+                                filter:
+                                    ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                                child: Text(
+                                  article.title,
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                  centerTitle: true,
+                  background: (article.urlToImage != null)
+                      ? CachedNetworkImage(
+                          imageUrl: article.urlToImage,
+                          fit: BoxFit.cover,
+                        )
+                      : Container(
+                          color: Colors.blueAccent,
+                        ),
+                ),
+                Container(
+                  height: 25,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(25),
+                      topRight: Radius.circular(25),
                     ),
-              centerTitle: true,
-              background: CachedNetworkImage(
-                imageUrl: article.urlToImage,
-                fit: BoxFit.cover,
-              ),
+                  ),
+                ),
+              ],
             ),
             expandedHeight: expandedToolbarHeight,
           ),
           SliverList(
             delegate: SliverChildBuilderDelegate(
               (context, index) {
-                return Padding(
-                  padding: EdgeInsets.all(16),
-                  child: (index % 2 == 0)
+                if (index == 0) {
+                  return Container(
+                    child: Row(
+                      children: [
+                        article.author != null
+                            ? Expanded(
+                                child: Padding(
+                                  padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
+                                  child: BorderedBox(
+                                    stringContent: article.author,
+                                    fillColour: Colors.lightBlue[100],
+                                    borderColor: Colors.blue,
+                                  ),
+                                ),
+                              )
+                            : Expanded(
+                                child: Container(),
+                              ),
+                        article.source.name != null
+                            ? Expanded(
+                                child: Padding(
+                                  padding: EdgeInsets.fromLTRB(0, 0, 16, 0),
+                                  child: BorderedBox(
+                                    stringContent: article.source.name,
+                                    borderColor: Colors.green,
+                                    fillColour: Colors.lightGreen[100],
+                                  ),
+                                ),
+                              )
+                            : Expanded(
+                                child: Container(),
+                              ),
+                        article.publishedAt != null
+                            ? Expanded(
+                                child: Padding(
+                                  padding: EdgeInsets.fromLTRB(0, 0, 16, 0),
+                                  child: BorderedBox(
+                                    stringContent: article.publishedAt
+                                            .getTimeDifferenceToNow() +
+                                        " ago",
+                                    fillColour: Colors.orangeAccent[100],
+                                    borderColor: Colors.orange,
+                                  ),
+                                ),
+                              )
+                            : Expanded(
+                                child: Container(),
+                              ),
+                      ],
+                    ),
+                  );
+                } else if (index == 1) {
+                  return article.description != null
                       ? Container(
-                          color: Colors.orange,
-                          child: Center(
+                          child: Padding(
+                            padding: EdgeInsets.fromLTRB(16, 32, 16, 16),
                             child: Text(
-                              article.content.,
+                              article.description ?? "",
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: 24,
                                 color: Colors.black,
-                                fontWeight: FontWeight.normal,
+                                fontWeight: FontWeight.w500,
+                                decoration: TextDecoration.none,
                               ),
                             ),
                           ),
                         )
-                      : SizedBox(height: 10),
-                );
+                      : null;
+                } else if (index == 2) {
+                  return article.content != null
+                      ? Container(
+                          child: Padding(
+                            padding: EdgeInsets.fromLTRB(16, 16, 16, 16),
+                            child: Text(
+                              article.content ?? "",
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.black,
+                                fontWeight: FontWeight.normal,
+                                decoration: TextDecoration.none,
+                              ),
+                            ),
+                          ),
+                        )
+                      : null;
+                } else {
+                  return article.url != null
+                      ? Padding(
+                          padding: EdgeInsets.fromLTRB(16, 16, 16, 32),
+                          child: BorderedBox(
+                            stringContent: article.url,
+                            fillColour: Colors.lightBlue[100],
+                            borderColor: Colors.blue,
+                          ),
+                        )
+                      : null;
+                }
               },
-              childCount: 10,
+              childCount: 4,
             ),
           ),
         ],

@@ -79,16 +79,23 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: Drawer(
+        child: Text(""),
+      ),
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.white,
-        leading: IconButton(
-          icon: Icon(
-            Icons.menu,
-            size: 28,
-            color: Colors.black,
-          ),
-          onPressed: null,
+        leading: Builder(
+          builder: (context) {
+            return IconButton(
+              icon: Icon(
+                Icons.menu,
+                size: 28,
+                color: Colors.black,
+              ),
+              onPressed: () => Scaffold.of(context).openDrawer(),
+            );
+          },
         ),
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(50),
