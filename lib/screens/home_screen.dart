@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:my_news/global_variables/global_variables.dart';
 import 'package:my_news/model/article.dart';
 import 'package:my_news/networking/network_manager.dart';
 import 'package:my_news/screens/news_detail_screen.dart';
+import 'package:my_news/screens/options_drawer.dart';
 import 'package:my_news/widgets/category_based_item.dart';
 import 'package:my_news/widgets/list_separators.dart';
 import 'package:my_news/widgets/navigation_bar_bottom.dart';
 import 'package:my_news/widgets/top_headline_list.dart';
 import 'package:my_news/helper/string_extension.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   static const routeName = '/';
@@ -21,16 +24,6 @@ class _HomeScreenState extends State<HomeScreen>
   Future<List<Article>> articles;
   Future<List<Article>> articlesByCategory;
 
-  // Tab bar controller and tab bar tabs.
-  List<String> _tabTextList = [
-    "Business",
-    "Entertainment",
-    "General",
-    "Health",
-    "Science",
-    "Sports",
-    "Technology",
-  ];
   final List<Widget> _tabs = [];
   TabController _tabController;
 
@@ -39,10 +32,10 @@ class _HomeScreenState extends State<HomeScreen>
     super.initState();
 
     // Add tabs to the tab list.
-    for (int i = 0; i < _tabTextList.length; i++) {
+    for (int i = 0; i < tabTextList.length; i++) {
       _tabs.add(Tab(
         child: Text(
-          _tabTextList[i],
+          tabTextList[i],
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w500,
@@ -52,9 +45,14 @@ class _HomeScreenState extends State<HomeScreen>
     }
 
     // Obtain articles and articlesByCategory by making network request.
-    articles = NetworkManager.instance.getTopHeadlines("us");
-    articlesByCategory = NetworkManager.instance
-        .getTopHeadlines("us", category: _tabTextList[0]);
+    final lastSelectedCountry = getlastSelectedCountry();
+    lastSelectedCountry.then((value) {
+      articles =
+          NetworkManager.instance.getTopHeadlines(countryCodeDictionary[value]);
+      articlesByCategory = NetworkManager.instance.getTopHeadlines(
+          countryCodeDictionary[value],
+          category: tabTextList[0]);
+    });
 
     // Setup tab controller.
     _tabController = TabController(length: _tabs.length, vsync: this);
@@ -63,11 +61,23 @@ class _HomeScreenState extends State<HomeScreen>
       if (_tabController.indexIsChanging) {
         setState(() {
           // Make network request to get relevant news by category.
-          articlesByCategory = NetworkManager.instance.getTopHeadlines("us",
-              category: _tabTextList[_tabController.index]);
+          final lastSelectedCountry = getlastSelectedCountry();
+          lastSelectedCountry.then((value) {
+            articlesByCategory = NetworkManager.instance.getTopHeadlines(
+                countryCodeDictionary[value],
+                category: tabTextList[_tabController.index]);
+          });
         });
       }
     });
+  }
+
+  // Retrieve data from UserDefaults (iOS) or SharedPreferences (Android).
+  Future<String> getlastSelectedCountry() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    final lastSelectedCountry =
+        preferences.getString("lastSelectedCountry") ?? "United States";
+    return lastSelectedCountry;
   }
 
   @override
@@ -80,7 +90,16 @@ class _HomeScreenState extends State<HomeScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: Drawer(
-        child: Text(""),
+        child: OptionsDrawer(
+          selectedCountry: (countryCode) {
+            print(countryCode);
+            setState(() {
+              articles = NetworkManager.instance.getTopHeadlines(countryCode);
+              articlesByCategory = NetworkManager.instance
+                  .getTopHeadlines(countryCode, category: tabTextList[0]);
+            });
+          },
+        ),
       ),
       appBar: AppBar(
         elevation: 0,

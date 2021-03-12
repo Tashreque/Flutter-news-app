@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:my_news/model/article.dart';
+import 'package:my_news/model/news_source.dart';
+import 'package:my_news/model/sources.dart';
 import 'package:my_news/model/top_headlines.dart';
 
 typedef OnSuccess = void Function();
@@ -46,5 +48,22 @@ class NetworkManager {
   }
 
   // Called to obtain a list of all available news publishers.
-  Future<void> getAvailableNewsSources() {}
+  Future<List<NewsSource>> getAvailableNewsSources(String country) async {
+    final url = "https://newsapi.org/v2/sources?country=" + country;
+    print(country);
+    // Make network request.
+    Map<String, String> headers = {"X-Api-Key": _apiKey};
+    final response = await http.get(
+      url,
+      headers: headers,
+    );
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> mapFromJson = jsonDecode(response.body);
+      final sources = Sources.fromJson(mapFromJson);
+      return sources.sources;
+    } else {
+      print('Request failed with status: ${response.statusCode}.');
+      return [];
+    }
+  }
 }

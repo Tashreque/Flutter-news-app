@@ -28,7 +28,7 @@ class CategoryBasedItem extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.baseline,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             (headlineImageUrl != null)
                 ? CachedNetworkImage(
