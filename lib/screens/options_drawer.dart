@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:my_news/global_variables/global_variables.dart';
+import 'package:my_news/local_storage/shared_preferences_handler.dart';
 import 'package:my_news/model/news_source.dart';
 import 'package:my_news/networking/network_manager.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class OptionsDrawer extends StatefulWidget {
   final void Function(String countryCode) selectedCountry;
-  OptionsDrawer({Key key, this.selectedCountry}) : super(key: key);
+  final void Function(String source) selectedSource;
+  OptionsDrawer({Key key, this.selectedCountry, this.selectedSource})
+      : super(key: key);
 
   @override
   _OptionsDrawerState createState() => _OptionsDrawerState();
@@ -14,8 +16,22 @@ class OptionsDrawer extends StatefulWidget {
 
 class _OptionsDrawerState extends State<OptionsDrawer> {
   String _selectedDropdownValue;
+  String _selectedSourceFromDropDown = "Select News Source";
   List<String> _countryList = [];
-  Future<List<NewsSource>> newsSources;
+  List<NewsSource> _newsSources = [];
+
+  final Widget loadingIndicator = Container(
+    height: 50,
+    child: Center(
+      child: CircularProgressIndicator(
+        value: null,
+        backgroundColor: Colors.white,
+        strokeWidth: 5,
+        valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+      ),
+    ),
+  );
+
   @override
   void initState() {
     super.initState();
@@ -24,48 +40,45 @@ class _OptionsDrawerState extends State<OptionsDrawer> {
     });
 
     // Fetch last selected country from shared preferences/user defaults.
-    Future<String> country = getlastSelectedCountry();
+    Future<String> country =
+        SharedPreferencesHandler.instance.getlastSelectedCountry();
     country.then((value) {
       _selectedDropdownValue = value;
-      getAvailableSources(countryCodeDictionary[value] ?? "us");
+      getAvailableSources(countryCodeDictionary[value] ?? "us", (sources) {
+        _newsSources = sources;
+        setState(() {
+          print("Obtained news sources from server!");
+        });
+      });
       setState(() {
-        print("retrieved: " + _selectedDropdownValue);
+        print("retrieved country from sharedPref: " + _selectedDropdownValue);
       });
     });
   }
 
-  // Store data to UserDefaults (iOS) or SharedPreferences (Android).
-  void saveToSharedPreference(String selectedCountry) async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    preferences.setString("lastSelectedCountry", selectedCountry);
-  }
-
-  // Retrieve data from UserDefaults (iOS) or SharedPreferences (Android).
-  Future<String> getlastSelectedCountry() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    final lastSelectedCountry =
-        preferences.getString("lastSelectedCountry") ?? "Select Country";
-    return lastSelectedCountry;
-  }
-
   // Fetch news sources based on the selected country.
-  void getAvailableSources(String countryCode) {
+  void getAvailableSources(
+      String countryCode, completion(List<NewsSource> sources)) {
     // Fetch news sources based on the selected country.
     print(countryCode);
-    newsSources = NetworkManager.instance.getAvailableNewsSources(countryCode);
+    Future<List<NewsSource>> sources =
+        NetworkManager.instance.getAvailableNewsSources(countryCode);
+    sources.then((value) {
+      completion(value);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: Colors.black,
       child: SafeArea(
         child: Padding(
           padding: EdgeInsets.fromLTRB(0, 16, 0, 16),
           child: Column(
             children: [
               Container(
-                color: Colors.blueAccent,
+                color: Colors.white,
                 child: DropdownButtonHideUnderline(
                   child: ButtonTheme(
                     alignedDropdown: true,
@@ -73,17 +86,17 @@ class _OptionsDrawerState extends State<OptionsDrawer> {
                       hint: Container(
                         child: Center(
                           child: Text(
-                            _selectedDropdownValue,
+                            _selectedDropdownValue ?? "",
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              color: Colors.white,
-                            ),
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),
                       elevation: 0,
                       isExpanded: true,
-                      dropdownColor: Colors.blueAccent,
+                      dropdownColor: Colors.white,
                       items: _countryList.map((each) {
                         return DropdownMenuItem(
                           value: each,
@@ -93,7 +106,7 @@ class _OptionsDrawerState extends State<OptionsDrawer> {
                                 each,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  color: Colors.white,
+                                  color: Colors.black,
                                 ),
                               ),
                             ),
@@ -101,76 +114,89 @@ class _OptionsDrawerState extends State<OptionsDrawer> {
                         );
                       }).toList(),
                       onChanged: (newValue) {
-                        setState(() {
-                          if (_selectedDropdownValue != newValue) {
-                            saveToSharedPreference(newValue);
-                            _selectedDropdownValue = newValue;
-                            getAvailableSources(
-                                countryCodeDictionary[newValue]);
-                            widget.selectedCountry(
-                                countryCodeDictionary[_selectedDropdownValue]);
-                          }
-                        });
+                        if (_selectedDropdownValue != newValue) {
+                          SharedPreferencesHandler.instance
+                              .saveCountryToSharedPreference(newValue);
+                          _selectedDropdownValue = newValue;
+                          _newsSources = [];
+                          setState(() {
+                            print("Fetching new news source list");
+                          });
+                          getAvailableSources(countryCodeDictionary[newValue],
+                              (sources) {
+                            _newsSources = sources;
+                            setState(() {
+                              print(
+                                  "Updated news source list based on country");
+                            });
+                          });
+                          widget.selectedCountry(
+                              countryCodeDictionary[_selectedDropdownValue]);
+                        }
                       },
                     ),
                   ),
                 ),
               ),
               SizedBox(
-                height: 5,
+                height: 1,
               ),
-              Container(
-                color: Colors.blueAccent,
-                child: DropdownButtonHideUnderline(
-                  child: ButtonTheme(
-                    alignedDropdown: true,
-                    child: DropdownButton(
-                      hint: Container(
-                        child: Center(
-                          child: Text(
-                            _selectedDropdownValue,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-                      elevation: 0,
-                      isExpanded: true,
-                      dropdownColor: Colors.blueAccent,
-                      items: _countryList.map((each) {
-                        return DropdownMenuItem(
-                          value: each,
-                          child: Container(
-                            child: Center(
-                              child: Text(
-                                each,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: Colors.white,
+              _newsSources.length > 0
+                  ? Container(
+                      color: Colors.white,
+                      child: DropdownButtonHideUnderline(
+                        child: ButtonTheme(
+                          alignedDropdown: true,
+                          child: DropdownButton(
+                            hint: Container(
+                              child: Center(
+                                child: Text(
+                                  _selectedSourceFromDropDown ?? "",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
                             ),
+                            elevation: 0,
+                            isExpanded: true,
+                            dropdownColor: Colors.white,
+                            items: _newsSources.map((each) {
+                              return DropdownMenuItem(
+                                value: each,
+                                child: Container(
+                                  child: Center(
+                                    child: Text(
+                                      each.name ?? "",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (newValue) {
+                              final NewsSource newSource = newValue;
+                              final String name = newSource.name ?? "";
+                              if (name != _selectedSourceFromDropDown) {
+                                _selectedSourceFromDropDown = name;
+                                setState(() {
+                                  print("Updated selected news source");
+                                });
+
+                                widget.selectedSource(
+                                    _selectedSourceFromDropDown);
+                              }
+                            },
                           ),
-                        );
-                      }).toList(),
-                      onChanged: (newValue) {
-                        setState(() {
-                          if (_selectedDropdownValue != newValue) {
-                            saveToSharedPreference(newValue);
-                            _selectedDropdownValue = newValue;
-                            getAvailableSources(
-                                countryCodeDictionary[newValue]);
-                            widget.selectedCountry(
-                                countryCodeDictionary[_selectedDropdownValue]);
-                          }
-                        });
-                      },
-                    ),
-                  ),
-                ),
-              ),
+                        ),
+                      ),
+                    )
+                  : this.loadingIndicator,
             ],
           ),
         ),

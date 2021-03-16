@@ -18,11 +18,18 @@ class NetworkManager {
   String url = "";
 
   // Called
-  Future<List<Article>> getTopHeadlines(String country,
-      {String category = "", String sources = ""}) async {
-    String query = "country=" + country;
+  Future<List<Article>> getTopHeadlines(
+      {String country = "", String category = "", String sources = ""}) async {
+    String query = "";
+    if (country.isNotEmpty) {
+      query = "country=" + country;
+    }
     if (sources.isEmpty) {
-      query = category.isEmpty ? query : query + ("&category=" + category);
+      query = category.isEmpty
+          ? query
+          : (country.isNotEmpty)
+              ? query + ("&category=" + category)
+              : ("category=" + category);
     } else {
       query = "sources=" + sources;
     }

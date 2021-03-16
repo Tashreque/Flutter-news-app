@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:my_news/global_variables/global_variables.dart';
 import 'package:my_news/model/article.dart';
@@ -47,11 +48,13 @@ class _HomeScreenState extends State<HomeScreen>
     // Obtain articles and articlesByCategory by making network request.
     final lastSelectedCountry = getlastSelectedCountry();
     lastSelectedCountry.then((value) {
-      articles =
-          NetworkManager.instance.getTopHeadlines(countryCodeDictionary[value]);
-      articlesByCategory = NetworkManager.instance.getTopHeadlines(
-          countryCodeDictionary[value],
-          category: tabTextList[0]);
+      print("Last selected country is " + value);
+      setState(() {
+        articles = NetworkManager.instance
+            .getTopHeadlines(country: countryCodeDictionary[value]);
+        articlesByCategory = NetworkManager.instance.getTopHeadlines(
+            country: countryCodeDictionary[value], category: tabTextList[0]);
+      });
     });
 
     // Setup tab controller.
@@ -64,7 +67,7 @@ class _HomeScreenState extends State<HomeScreen>
           final lastSelectedCountry = getlastSelectedCountry();
           lastSelectedCountry.then((value) {
             articlesByCategory = NetworkManager.instance.getTopHeadlines(
-                countryCodeDictionary[value],
+                country: countryCodeDictionary[value],
                 category: tabTextList[_tabController.index]);
           });
         });
@@ -94,9 +97,16 @@ class _HomeScreenState extends State<HomeScreen>
           selectedCountry: (countryCode) {
             print(countryCode);
             setState(() {
-              articles = NetworkManager.instance.getTopHeadlines(countryCode);
-              articlesByCategory = NetworkManager.instance
-                  .getTopHeadlines(countryCode, category: tabTextList[0]);
+              articles =
+                  NetworkManager.instance.getTopHeadlines(country: countryCode);
+              articlesByCategory = NetworkManager.instance.getTopHeadlines(
+                  country: countryCode, category: tabTextList[0]);
+            });
+          },
+          selectedSource: (source) {
+            setState(() {
+              articles =
+                  NetworkManager.instance.getTopHeadlines(sources: source);
             });
           },
         ),

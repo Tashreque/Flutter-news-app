@@ -1,4 +1,6 @@
 // Tab bar controller and tab bar tabs.
+import 'package:built_value/built_value.dart';
+
 List<String> tabTextList = [
   "Business",
   "Entertainment",
@@ -67,3 +69,10 @@ Map<String, String> countryCodeDictionary = {
   "United States": "us",
   "Venezuela": "ve",
 };
+
+CurrentPlatform currentPlatform = CurrentPlatform.iOS;
+enum CurrentPlatform {
+  iOS,
+  android,
+  web,
+}
