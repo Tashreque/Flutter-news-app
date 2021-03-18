@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:my_news/global_variables/global_variables.dart';
 
 class TopHeadlineItem extends StatelessWidget {
   final String headline;
@@ -22,8 +23,10 @@ class TopHeadlineItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double headlineWidth =
+        currentPlatform == CurrentPlatform.web ? 600 : 300;
     return Container(
-      width: 300,
+      width: headlineWidth,
       child: Stack(
         alignment: Alignment.bottomCenter,
         children: [
@@ -41,7 +44,7 @@ class TopHeadlineItem extends StatelessWidget {
                   },
                   imageBuilder: (context, imageProvider) {
                     return Container(
-                      width: 300,
+                      width: headlineWidth,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(25),
                         image: DecorationImage(
@@ -53,7 +56,7 @@ class TopHeadlineItem extends StatelessWidget {
                   },
                 )
               : Container(
-                  width: 300,
+                  width: headlineWidth,
                   decoration: BoxDecoration(
                     color: Colors.blueAccent,
                     borderRadius: BorderRadius.circular(25),
