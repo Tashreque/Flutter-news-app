@@ -1,6 +1,6 @@
 # my_news
 
-A new Flutter project.
+A simple news app which consumes data from NewsAPI and displays them to the user. The app can be used to display breaking news as well as category based news from several countries. The dependencies used can be found in the pubspec.yaml file.
 
 ## Getting Started
 
