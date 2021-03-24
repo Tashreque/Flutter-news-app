@@ -26,104 +26,100 @@ class CategoryBasedItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final double imageContainerDimension =
         currentPlatform == CurrentPlatform.web ? 200 : 100;
-    return Padding(
-      padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-      child: Container(
-        height: imageContainerDimension,
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              (headlineImageUrl != null)
-                  ? CachedNetworkImage(
-                      imageUrl: headlineImageUrl,
-                      imageBuilder: (context, imageProvider) {
-                        return Container(
-                          width: imageContainerDimension,
-                          height: imageContainerDimension,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            image: DecorationImage(
-                              image: imageProvider,
-                              fit: BoxFit.cover,
-                            ),
+    return Container(
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            (headlineImageUrl != null)
+                ? CachedNetworkImage(
+                    imageUrl: headlineImageUrl,
+                    imageBuilder: (context, imageProvider) {
+                      return Container(
+                        width: imageContainerDimension,
+                        height: imageContainerDimension,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          image: DecorationImage(
+                            image: imageProvider,
+                            fit: BoxFit.cover,
                           ),
-                        );
-                      },
-                      progressIndicatorBuilder:
-                          (context, url, downloadProgress) =>
-                              CircularProgressIndicator(
-                                  value: downloadProgress.progress),
-                      errorWidget: (context, url, error) => Icon(Icons.error),
-                    )
-                  : Container(
-                      height: imageContainerDimension,
-                      width: imageContainerDimension,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: Colors.blueAccent,
+                        ),
+                      );
+                    },
+                    progressIndicatorBuilder:
+                        (context, url, downloadProgress) =>
+                            CircularProgressIndicator(
+                                value: downloadProgress.progress),
+                    errorWidget: (context, url, error) => Icon(Icons.error),
+                  )
+                : Container(
+                    height: imageContainerDimension,
+                    width: imageContainerDimension,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      color: Colors.blueAccent,
+                    ),
+                  ),
+            Expanded(
+              child: Container(
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                      child: Text(
+                        this.headline ?? "",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 3,
+                        overflow: TextOverflow.fade,
                       ),
                     ),
-              Expanded(
-                child: Container(
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                        child: Text(
-                          this.headline ?? "",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            flex: 1,
+                            child: Container(
+                              child: Text(
+                                this.author != null
+                                    ? "Author - " + this.author
+                                    : "",
+                                style: TextStyle(
+                                  color: Colors.blueAccent,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                maxLines: 3,
+                                overflow: TextOverflow.fade,
+                              ),
+                            ),
                           ),
-                          maxLines: 3,
-                          overflow: TextOverflow.fade,
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              flex: 1,
-                              child: Container(
-                                child: Text(
-                                  this.author != null
-                                      ? "Author - " + this.author
-                                      : "",
-                                  style: TextStyle(
-                                    color: Colors.blueAccent,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  maxLines: 3,
-                                  overflow: TextOverflow.fade,
+                          Expanded(
+                            flex: 1,
+                            child: Container(
+                              child: Text(
+                                this.date + "\n" + this.time,
+                                textAlign: TextAlign.right,
+                                style: TextStyle(
+                                  color: Colors.black54,
+                                  fontSize: 11,
                                 ),
+                                maxLines: 3,
+                                overflow: TextOverflow.fade,
                               ),
                             ),
-                            Expanded(
-                              flex: 1,
-                              child: Container(
-                                child: Text(
-                                  this.date + "\n" + this.time,
-                                  textAlign: TextAlign.right,
-                                  style: TextStyle(
-                                    color: Colors.black54,
-                                    fontSize: 11,
-                                  ),
-                                  maxLines: 3,
-                                  overflow: TextOverflow.fade,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

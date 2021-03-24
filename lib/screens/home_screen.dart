@@ -118,7 +118,9 @@ class _HomeScreenState extends State<HomeScreen>
           builder: (context) {
             return IconButton(
               icon: Icon(
-                Icons.menu,
+                currentPlatform == CurrentPlatform.iOS
+                    ? CupertinoIcons.bars
+                    : Icons.menu,
                 size: 28,
                 color: Colors.black,
               ),

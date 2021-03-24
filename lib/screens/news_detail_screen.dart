@@ -2,10 +2,13 @@ import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:my_news/global_variables/global_variables.dart';
 import 'package:my_news/model/article.dart';
 import 'package:my_news/helper/string_extension.dart';
 import 'package:my_news/widgets/bordered_box.dart';
+import 'package:share/share.dart';
 
 const toolbarHeight = 80.0;
 const expandedToolbarHeight = 500.0;
@@ -37,6 +40,9 @@ class _NewsDetailScreenState extends State<NewsDetailScreen> {
   Widget build(BuildContext context) {
     // Extract arguments.
     final Article article = ModalRoute.of(context).settings.arguments;
+    final Widget shareIcon = currentPlatform == CurrentPlatform.iOS
+        ? Icon(CupertinoIcons.share)
+        : Icon(Icons.share);
 
     return Container(
       color: Colors.white,
@@ -57,6 +63,15 @@ class _NewsDetailScreenState extends State<NewsDetailScreen> {
                     overflow: TextOverflow.fade,
                     style: TextStyle(color: Colors.black),
                   )
+                : null,
+            actions: currentPlatform != CurrentPlatform.web
+                ? [
+                    IconButton(
+                        icon: shareIcon,
+                        onPressed: () {
+                          Share.share(article.url);
+                        }),
+                  ]
                 : null,
             flexibleSpace: Stack(
               alignment: Alignment.bottomCenter,
